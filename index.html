@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Video Region Restrictions App</title>
+  <!-- Materialize CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      text-align: center;
+      margin: 20px;
+      background-color: #f0f0f0;
+    }
+    .container {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .video-container iframe, .video-container img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+    }
+    #result {
+      margin-top: 20px;
+    }
+    #errorMessage {
+      color: red;
+    }
+    button {
+      background-color: #4caf50;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    p {
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h3 class="teal-text">YouTube Video Region Restrictions Checker</h3>
+    <div class="row">
+      <div class="input-field col s12">
+        <input type="text" id="videoId" class="validate" placeholder="Enter Video ID">
+        <label for="videoId">YouTube Video ID</label>
+      </div>
+    </div>
+    <button class="btn waves-effect waves-light" onclick="checkRegionRestrictions()">Check</button>
+    <div id="errorMessage"></div>
+    <div id="result">
+      <div class="video-container" id="videoContainer"></div>
+      <p id="videoTitle"></p>
+      <p id="videoDescription"></p>
+      <p id="publishedAt"></p>
+      <p id="allowedRegions"></p>
+      <p id="blockedRegions"></p>
+      <p id="videoTags"></p>
+      <p id="viewCount"></p>
+      <p id="language"></p>
+      <p id="likeCount"></p>
+      <p id="dislikeCount"></p>
+      <p id="commentCount"></p>
+      <p id="videoDuration"></p>
+      <p id="channelName"></p>
+      <p id="channelDescription"></p>
+      <p id="subscriberCount"></p>
+      <p id="videoCategory"></p>
+      <p id="publishedDateTime"></p>
+      <p id="thumbnailHighQuality"></p>
+      <p id="privacyStatus"></p>
+      <p id="videoIdDisplay"></p>
+      <p id="channelId"></p>
+      <a id="openInYouTube" class="btn waves-effect waves-light" target="_blank">Open in YouTube</a>
+    </div>
+  </div>
+
+  <!-- Materialize JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      M.AutoInit(); // Initialize Materialize components
+    });
+
+    function checkRegionRestrictions() {
+      const videoId = document.getElementById('videoId').value;
+      const apiKey = 'AIzaSyB-8BDOg8abHE_p8oIs0NNGd_rjcWvzSqY';
+
+      // Make sure to replace YOUR_YOUTUBE_API_KEY with your actual API key
+
+      if (!videoId) {
+        M.toast({html: 'Please enter a valid YouTube Video ID.', classes: 'red'});
+        return;
+      }
+
+      const apiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=contentDetails,snippet,statistics,status&key=${apiKey}`;
+
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          const regionRestrictions = data.items[0].contentDetails.regionRestriction;
+
+          if (regionRestrictions) {
+            const allowedRegions = regionRestrictions.allowed || [];
+            const blockedRegions = regionRestrictions.blocked || [];
+
+            const resultElement = document.getElementById('result');
+            const videoContainer = document.getElementById('videoContainer');
+            const videoTitle = document.getElementById('videoTitle');
+            const videoDescription = document.getElementById('videoDescription');
+            const publishedAt = document.getElementById('publishedAt');
+            const allowedRegionsElement = document.getElementById('allowedRegions');
+            const blockedRegionsElement = document.getElementById('blockedRegions');
+            const videoTags = document.getElementById('videoTags');
+            const viewCount = document.getElementById('viewCount');
+            const language = document.getElementById('language');
+            const likeCount = document.getElementById('likeCount');
+            const dislikeCount = document.getElementById('dislikeCount');
+            const commentCount = document.getElementById('commentCount');
+            const videoDuration = document.getElementById('videoDuration');
+            const channelName = document.getElementById('channelName');
+            const channelDescription = document.getElementById('channelDescription');
+            const subscriberCount = document.getElementById('subscriberCount');
+            const videoCategory = document.getElementById('videoCategory');
+            const publishedDateTime = document.getElementById('publishedDateTime');
+            const thumbnailHighQuality = document.getElementById('thumbnailHighQuality');
+            const privacyStatus = document.getElementById('privacyStatus');
+            const videoIdDisplay = document.getElementById('videoIdDisplay');
+            const channelId = document.getElementById('channelId');
+            const openInYouTube = document.getElementById('openInYouTube');
+
+            // Display video thumbnail and embed video player
+            const thumbnailUrl = data.items[0].snippet.thumbnails.medium.url;
+            videoContainer.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+            videoContainer.innerHTML += `<img src="${thumbnailUrl}" alt="Video Thumbnail" class="responsive-img">`;
+
+            // Display video title, description, and publication date
+            videoTitle.innerText = `Title: ${data.items[0].snippet.title}`;
+            videoDescription.innerText = `Description: ${data.items[0].snippet.description}`;
+            publishedAt.innerText = `Published at: ${data.items[0].snippet.publishedAt}`;
+
+            // Display allowed and blocked regions
+            allowedRegionsElement.innerHTML = `<strong>Allowed Regions:</strong> ${allowedRegions.join(', ')}`;
+            blockedRegionsElement.innerHTML = `<strong>Blocked Regions:</strong> ${blockedRegions.join(', ')}`;
+
+            // Display video tags, view count, and language information
+            videoTags.innerText = `Tags: ${data.items[0].snippet.tags ? data.items[0].snippet.tags.join(', ') : 'N/A'}`;
+            viewCount.innerText = `View Count: ${data.items[0].statistics.viewCount || 'N/A'}`;
+            language.innerText = `Language: ${data.items[0].snippet.defaultLanguage || 'N/A'}`;
+
+            // Display like count, dislike count, comment count, and video duration
+            likeCount.innerText = `Likes: ${data.items[0].statistics.likeCount || 'N/A'}`;
+            dislikeCount.innerText = `Dislikes: ${data.items[0].statistics.dislikeCount || 'N/A'}`;
+            commentCount.innerText = `Comments: ${data.items[0].statistics.commentCount || 'N/A'}`;
+            videoDuration.innerText = `Duration: ${formatVideoDuration(data.items[0].contentDetails.duration)}`;
+
+            // Display channel information and subscriber count
+            channelName.innerText = `Channel: ${data.items[0].snippet.channelTitle}`;
+            channelDescription.innerText = `Channel Description: ${data.items[0].snippet.description || 'N/A'}`;
+            subscriberCount.innerText = `Subscribers: ${data.items[0].statistics.subscriberCount || 'N/A'}`;
+
+            // Display video category, published date and time, thumbnail in high quality, privacy status,
+            // video ID, and channel ID
+            videoCategory.innerText = `Category: ${data.items[0].snippet.category || 'N/A'}`;
+            publishedDateTime.innerText = `Published Date and Time: ${new Date(data.items[0].snippet.publishedAt).toLocaleString()}`;
+            thumbnailHighQuality.innerHTML = `<img src="${data.items[0].snippet.thumbnails.high.url}" alt="High Quality Thumbnail" class="responsive-img">`;
+            privacyStatus.innerText = `Privacy Status: ${data.items[0].status.privacyStatus || 'N/A'}`;
+            videoIdDisplay.innerText = `Video ID: ${data.items[0].id}`;
+            channelId.innerText = `Channel ID: ${data.items[0].snippet.channelId}`;
+
+            // Set the URL for the "Open in YouTube" button
+            openInYouTube.href = `https://www.youtube.com/watch?v=${videoId}`;
+
+            // Clear previous error messages
+            document.getElementById('errorMessage').innerText = '';
+          } else {
+            document.getElementById('result').innerHTML = '<p>No region restrictions found for this video.</p>';
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching YouTube API:', error);
+
+          // Display error message
+          document.getElementById('errorMessage').innerText = 'Error fetching data from YouTube API. Please try again.';
+        });
+    }
+
+    function formatVideoDuration(duration) {
+      const match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
+
+      const hours = (parseInt(match[1]) || 0);
+      const minutes = (parseInt(match[2]) || 0);
+      const seconds = (parseInt(match[3]) || 0);
+
+      return `${hours ? hours + 'h ' : ''}${minutes ? minutes + 'm ' : ''}${seconds ? seconds + 's' : ''}`;
+    }
+  </script>
+</body>
+</html>
